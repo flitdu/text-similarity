@@ -15,7 +15,7 @@ import re
 from simhash import Simhash, SimhashIndex
 import time, os
 from data_operation.function import standardize_text_similarity
-from  data_operation.excel_operate import OperateExcel
+from data_operation.excel_operate import OperateExcel
 import pickle
 
 
