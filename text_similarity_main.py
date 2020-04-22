@@ -37,12 +37,6 @@ def get_similarity_list(judged_sentence: str):
         return []
 
 
-def get_indexs():
-    with open(r'.\data\index.txt', 'rb') as f2:
-        indexs = pickle.load(f2)
-        return indexs
-
-
 def get_objs():
     try:
         with open(r'.\data\objs.txt', 'rb') as f1:
@@ -52,7 +46,7 @@ def get_objs():
         return []
 
 
-def update_datas(content, excel_name):
+def update_objs(content, excel_name):
     objs_list = get_objs()  # 获取当前词典
 
     if i in objs_list:  # 注意excel_name 可能存在名称一样， 内容不一样
@@ -63,6 +57,7 @@ def update_datas(content, excel_name):
     to_add_data[excel_name] = content
     obj_i = [(str(k), Simhash(get_features(v))) for k, v in to_add_data.items()]
     objs_list.append(obj_i[0])
+
     f3 = open(r'.\data\objs.txt', 'wb')  # 覆盖写入
     pickle.dump(objs_list, f3)
     f3.close()
@@ -71,8 +66,8 @@ def update_datas(content, excel_name):
 
 if __name__ == "__main__":
     filePath = r'D:\dufy\语料\different'
-    filePath = r'D:\dufy\语料\test3'
-    filePath = r'C:\Users\Administrator\Documents\Tencent Files\3007490756\FileRecv\100'
+    # filePath = r'D:\dufy\语料\test3'
+    # filePath = r'C:\Users\Administrator\Documents\Tencent Files\3007490756\FileRecv\100'
 
     file_names = os.listdir(filePath)
 
@@ -83,6 +78,8 @@ if __name__ == "__main__":
         print(f'========进度：{i/len(file_names)}====用时：{time.time()-time0}s=========')
         print(name0, ': ')
         excel_i_path = filePath + '\\' + name0
+        if '~$' in excel_i_path:
+            continue
         content_i = standardize_text_similarity(OperateExcel(excel_i_path).excel_content_all())
 
         if not content_i:
@@ -95,7 +92,7 @@ if __name__ == "__main__":
             print(f'相似文本：{similarity_lists_for_contentI}')
             similarity_dict[name0] = similarity_lists_for_contentI
         else:
-            update_datas(content_i, name0)
+            update_objs(content_i, name0)
 
     print('相似组数：', len(similarity_dict), similarity_dict)
 
