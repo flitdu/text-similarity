@@ -18,6 +18,7 @@ from data_operation.function import standardize_text_similarity
 from  data_operation.excel_operate import OperateExcel
 import pickle
 
+
 def get_features(s):
     width = 4
     s = s.lower()
@@ -27,23 +28,11 @@ def get_features(s):
 
 def get_similarity_list(judged_sentence: str):
     pass
-    datas = get_datas()
-    if bool(datas):  #非空
-        index = get_indexs()
-        s1 = Simhash(get_features(judged_sentence))
-
-        # index.add(excel_name, s1)
-        return index.get_near_dups(s1)
-    else:
-        return []
-
-
-def get_datas():
-    pass
     try:
-        with open(r'.\data\objs.txt', 'rb') as f1:
-            data_dict = pickle.load(f1)
-            return data_dict
+        obj_list = get_objs()  # 获取当前词典
+        index = SimhashIndex(obj_list, k=10)  # k是容忍度；k越大，检索出的相似文本就越多
+        s1 = Simhash(get_features(judged_sentence))
+        return index.get_near_dups(s1)
     except EOFError:
         return []
 
@@ -54,37 +43,30 @@ def get_indexs():
         return indexs
 
 
+def get_objs():
+    try:
+        with open(r'.\data\objs.txt', 'rb') as f1:
+            objs_list = pickle.load(f1)
+            return objs_list
+    except EOFError:
+        return []
+
+
 def update_datas(content, excel_name):
+    objs_list = get_objs()  # 获取当前词典
 
-    obj_list = get_datas()  # 获取当前词典
-    print(obj_list, '$$$$$$$$$$$')
-    print('14903)-原始需求导出 - 副本.xlsx' in obj_list, '$$$$$$$$$$$')
-
-    if i in obj_list:
-        # 注意excel_name 可能存在名称一样， 内容不一样
+    if i in objs_list:  # 注意excel_name 可能存在名称一样， 内容不一样
         if excel_name in i:
             excel_name += '(重名)'
 
-    a = {}
-    a[excel_name] = content
-    obj_a = [(str(k), Simhash(get_features(v))) for k, v in a.items()]
-    obj_list.append(obj_a[0])
+    to_add_data = {}  # 待更新数据
+    to_add_data[excel_name] = content
+    obj_i = [(str(k), Simhash(get_features(v))) for k, v in to_add_data.items()]
+    objs_list.append(obj_i[0])
     f3 = open(r'.\data\objs.txt', 'wb')  # 覆盖写入
-    pickle.dump(obj_list, f3)
+    pickle.dump(objs_list, f3)
     f3.close()
     print(f'添加：{excel_name}!!!!')
-
-    update_indexs(obj_list)
-
-
-def update_indexs(obj_list, k0=10):  # 更新datas同时更新索引
-    pass
-    print(obj_list, '!!!!!!!!!')
-    objs = obj_list
-    print(objs, type(objs), len(objs), '~~~~~~~~~')
-    index = SimhashIndex(objs, k=k0)  # k是容忍度；k越大，检索出的相似文本就越多
-    with open(r'.\data\index.txt', 'wb') as f4:
-        pickle.dump(index, f4)
 
 
 if __name__ == "__main__":
@@ -108,11 +90,10 @@ if __name__ == "__main__":
             continue
 
         similarity_lists_for_contentI = get_similarity_list(content_i)
-        print(similarity_lists_for_contentI,'------------')
+
         if similarity_lists_for_contentI:  # 有相似
             print(f'相似文本：{similarity_lists_for_contentI}')
             similarity_dict[name0] = similarity_lists_for_contentI
-
         else:
             update_datas(content_i, name0)
 
