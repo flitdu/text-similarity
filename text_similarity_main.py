@@ -8,7 +8,7 @@
 Description :
 1)文本相似度查询
 2)超参数：width 与 k
-Reference :
+Reference :  width 5 比 4,6 好
 """
 
 import re
@@ -20,7 +20,7 @@ import pickle
 
 
 def get_features(s):
-    width = 4
+    width = 5
     s = s.lower()
     s = re.sub(r'[^\w]+', '', s)
     return [s[i:i + width] for i in range(max(len(s) - width + 1, 1))]
