@@ -19,25 +19,25 @@ from data_operation.excel_operate import OperateExcel
 import pickle
 
 
-def get_features(s):
+def getFeatures(s):
     width = 5
     s = s.lower()
     s = re.sub(r'[^\w]+', '', s)
     return [s[i:i + width] for i in range(max(len(s) - width + 1, 1))]
 
 
-def get_similarity_list(judged_sentence: str):
+def getSimilarityList(judged_sentence: str):
     pass
     try:
-        obj_list = get_objs()  # 获取当前词典
+        obj_list = getObjs()  # 获取当前词典
         index = SimhashIndex(obj_list, k=10)  # k是容忍度；k越大，检索出的相似文本就越多
-        s1 = Simhash(get_features(judged_sentence))
+        s1 = Simhash(getFeatures(judged_sentence))
         return index.get_near_dups(s1)
     except EOFError:
         return []
 
 
-def get_objs():
+def getObjs():
     try:
         with open(r'.\data\objs.txt', 'rb') as f1:
             objs_list = pickle.load(f1)
@@ -46,8 +46,8 @@ def get_objs():
         return []
 
 
-def update_objs(content, excel_name):
-    objs_list = get_objs()  # 获取当前词典
+def updateObjs(content, excel_name):
+    objs_list = getObjs()  # 获取当前词典
 
     if i in objs_list:  # 注意excel_name 可能存在名称一样， 内容不一样
         if excel_name in i:
@@ -55,7 +55,7 @@ def update_objs(content, excel_name):
 
     to_add_data = {}  # 待更新数据
     to_add_data[excel_name] = content
-    obj_i = [(str(k), Simhash(get_features(v))) for k, v in to_add_data.items()]
+    obj_i = [(str(k), Simhash(getFeatures(v))) for k, v in to_add_data.items()]
     objs_list.append(obj_i[0])
 
     f3 = open(r'.\data\objs.txt', 'wb')  # 覆盖写入
@@ -66,7 +66,7 @@ def update_objs(content, excel_name):
 
 if __name__ == "__main__":
     filePath = r'D:\dufy\语料\different'
-    # filePath = r'D:\dufy\语料\test3'
+    filePath = r'D:\dufy\语料\test3'
     # filePath = r'C:\Users\Administrator\Documents\Tencent Files\3007490756\FileRecv\100'
 
     file_names = os.listdir(filePath)
@@ -86,13 +86,13 @@ if __name__ == "__main__":
             print('空文本')
             continue
 
-        similarity_lists_for_contentI = get_similarity_list(content_i)
+        similarity_lists_for_contentI = getSimilarityList(content_i)
 
         if similarity_lists_for_contentI:  # 有相似
             print(f'相似文本：{similarity_lists_for_contentI}')
             similarity_dict[name0] = similarity_lists_for_contentI
         else:
-            update_objs(content_i, name0)
+            updateObjs(content_i, name0)
 
     print('相似组数：', len(similarity_dict), similarity_dict)
 
