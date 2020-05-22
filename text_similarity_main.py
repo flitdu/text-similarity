@@ -30,7 +30,7 @@ def getSimilarityList(judged_sentence: str):
     pass
     try:
         obj_list = getObjs()
-        index = SimhashIndex(obj_list, k=10)  # k是容忍度；k越大，检索出的相似文本就越多
+        index = SimhashIndex(obj_list, k=12)  # k是容忍度；k越大，检索出的相似文本就越多
         s1 = Simhash(getFeatures(judged_sentence))
         return index.get_near_dups(s1)
     except EOFError:
@@ -65,6 +65,11 @@ def updateObjs(content, excel_name):
 
 
 if __name__ == "__main__":
+    # 先清空objs.txt 内容，参数调整使用
+    f_train = open(r'.\data\objs.txt', 'w')
+    f_train.truncate()
+    f_train.close() # 注：在正式环境下不能采用
+
     filePath = r'D:\dufy\语料\different'
     filePath = r'D:\dufy\语料\test3'
     # filePath = r'C:\Users\Administrator\Documents\Tencent Files\3007490756\FileRecv\100'
